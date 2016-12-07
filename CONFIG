@@ -10,49 +10,31 @@
 
 # General structure for the traces #
 
+
 [Traces]
-
-# The number of files containing traces
 files=1
-
-# The type of the traces:
-# f: 32 bit floating point
-# d: 64 bit floating point
-# i: 8 bit integer
-# u: unsigned 8 bit integer
 trace_type=f
-
-# Whether the input file (specified in trace below) needs to be transposed (done on-the-fly when reading the file) or not. 
-# When using this in combination with the Tracer and Deadpool project this option should be set to true.
 transpose=true
-
-# The first index in the time samples where to start computing correlation.
 index=0
-
-# The number of time samples starting from index to consider.
-nsamples=3000
-
-# The path to the (possibly multiple) files, their number of lines and columns. The dimensions are needed for the moment in order to know how to read the files and store them in memory. Syntax:
-# trace=path rows columns
-trace=tracefile 1000000 3000
-
-# General structure to create the guesses, it is essentially the same as for the traces. #
-# This are the known plaintexts, the tool will create from these plaintexts the guesses
-# automagically.
+nsamples=396
+trace=tracefile 5000 396
 
 [Guesses]
 files=1
 guess_type=u
 transpose=true
+guess=plaintext 5000 16
 
-guess=plaintext 1000000 16
+[Ciphertexts]
+ciphertext_type=u
+ciphertext=ciphertext 5000 16
 
 # General configuration options. #
 
 [General]
 
 # The number of threads used in the computation
-threads=8
+threads=4
 
 # The order of the attack.
 # 1: first-order (default)
@@ -99,8 +81,8 @@ position=LUT/AES_AFTER_SBOX
 round=0
 
 # The number of the key byte to attack. Can be either an integer or "all"
-#bytenum=all
-bytenum=0
+bytenum=all
+#bytenum=0
 
 # The bit number in the byte to attack. 
 # Options: none, all, <int>
@@ -119,7 +101,7 @@ bitnum=all
 #	the complete key to generate the round keys.
 #correct_key=100
 #correct_key=0x8f f9 8b 4a 7a a3 5b 69 30 1c b2 a7 91 07 6b 7e
-correct_key=0xaa
+#correct_key=0x2B 7E 15 16 28 AE D2 A6 AB F7 15 88 09 CF 4F 3C
 
 # The memory available. Used with attack=50 only. Possible suffixes:
 # G: Giga

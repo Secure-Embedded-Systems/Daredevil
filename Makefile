@@ -1,9 +1,10 @@
 TARGET=daredevil
 PREFIX=/usr/local
 RESOURCES=$(PREFIX)/share/daredevil/
-CC=clang++
-CFLAGS=-Wall -Wextra -std=c++11 -O3 -DRESOURCES=\"$(RESOURCES)\"
+CC=g++
+CFLAGS= -Wall -Wextra -std=c++11 -O3 -DRESOURCES=\"$(RESOURCES)\" -I/usr/lib/gcc/x86_64-linux-gnu/4.8/include 
 LIBS=-fopenmp -lm 
+
 
 OBJECTS = $(patsubst %.cpp, %.o, $(wildcard *.cpp))
 HEADERS = $(wildcard *.h)

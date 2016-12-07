@@ -332,11 +332,13 @@ struct Config {
    */
   bool transpose_traces;
   bool transpose_guesses;
+  bool transpose_ciphertexts;
 
-  /* The number of trace and guess files.
+  /* The number of trace and guess files. and ciphertext results
    */
   int n_file_trace;
   int n_file_guess;
+  int n_file_ciphertext;
 
   /* The type of the traces and guesses, represented by a char.
    * u: uint8_t
@@ -346,12 +348,14 @@ struct Config {
    */
   char type_trace;
   char type_guess;
+  char type_ciphertext;
   char type_return;
 
   /* The matrices structures containing file informations.
    */
   Matrix * traces;
   Matrix * guesses;
+  Matrix * ciphertexts;
 
   /* The order of the attack
    */

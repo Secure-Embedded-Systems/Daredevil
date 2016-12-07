@@ -617,7 +617,9 @@ int load_config(Config & config, const char * conf_file)
   int tot_row_traces = 0,
       tot_col_traces = 0,
       tot_row_guesses = 0,
-      tot_col_guesses = 0;
+      tot_row_ciphertexts= 0,
+      tot_col_guesses = 0,
+      tot_col_ciphertexts= 0;
 
   config.n_threads = 4;
   config.index_sample = 0;
@@ -659,6 +661,8 @@ int load_config(Config & config, const char * conf_file)
     }else if (line.find("[Guesses]") != string::npos) {
       traces = false;
       i_traces = 0;
+    }else if (line.find("[Ciphertexts]") != string::npos) {
+      i_traces = 0;
     }else if (line.find("type") != string::npos) {
 
       if (line.find("return_type") != string::npos) {
@@ -670,22 +674,38 @@ int load_config(Config & config, const char * conf_file)
       }else if (line.find("guess_type") != string::npos) {
         string type = line.substr(line.find("=") + 1);
         config.type_guess = type[0];
+      }else if (line.find("ciphertext_type") != string::npos) {
+        string type = line.substr(line.find("=") + 1);
+        config.type_ciphertext = type[0];
       }
+
     }else if (line.find("files") != string::npos) {
       if (traces){
         config.n_file_trace = atoi(line.substr(line.find("=") + 1).c_str());
         config.traces = (Matrix *) malloc(config.n_file_trace * sizeof(Matrix));
       }else {
         config.n_file_guess = atoi(line.substr(line.find("=") + 1).c_str());
+        config.n_file_ciphertext = atoi(line.substr(line.find("=") + 1).c_str());
+
+        // mem leak
         config.guesses = (Matrix *) malloc(config.n_file_guess * sizeof(Matrix));
+        config.ciphertexts = (Matrix *) malloc(config.n_file_ciphertext * sizeof(Matrix));
       }
-    }else if (line.find("trace") != string::npos || line.find("guess") != string::npos) {
+    }else if (line.find("trace") != string::npos || line.find("guess") != string::npos || line.find("ciphertext") != string::npos) {
       if (traces){
         if (i_traces >= config.n_file_trace)
           continue;
       }else{
-        if (i_traces >= config.n_file_guess)
-          continue;
+          if (line.find("guess") != string::npos)
+          {
+              if (i_traces >= config.n_file_guess)
+                  continue;
+          }
+          else
+          {
+              if (i_traces >= config.n_file_ciphertext)
+                  continue;
+          }
       }
       string tmp = line.substr(line.find("=") + 1);
       string path = tmp.substr(0, tmp.find(" "));
@@ -705,9 +725,22 @@ int load_config(Config & config, const char * conf_file)
         tot_row_traces += n_rows;
         tot_col_traces += n_columns;
       }else{
-        config.guesses[i_traces] = Matrix(p, n_rows, n_columns);
-        tot_row_guesses += n_rows;
-        tot_col_guesses += n_columns;
+
+          if (line.find("guess") != string::npos)
+          {
+              config.guesses[i_traces] = Matrix(p, n_rows, n_columns);
+              tot_row_guesses += n_rows;
+              tot_col_guesses += n_columns;
+          }
+          else
+          {
+              // ciphertexts
+              config.ciphertexts[i_traces] = Matrix(p, n_rows, n_columns);
+              tot_row_ciphertexts += n_rows;
+              tot_col_ciphertexts += n_columns;
+          }
+
+
       }
       i_traces += 1;
     }
@@ -722,7 +755,10 @@ int load_config(Config & config, const char * conf_file)
       if(traces)
         config.transpose_traces = (tmp[0] == 't' ? true : false);
       else
+      {
         config.transpose_guesses = (tmp[0] == 't' ? true : false);
+        config.transpose_ciphertexts= (tmp[0] == 't' ? true : false);
+      }
     }else if (line.find("order") != string::npos) {
       config.attack_order = atoi(line.substr(line.find("=") + 1).c_str());
     }else if (line.find("nkeys") != string::npos) {
