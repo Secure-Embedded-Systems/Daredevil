@@ -9,25 +9,27 @@
 # This (CONFIG) file can also be passed as argument to the program: ./main -c CONFIG
 
 # General structure for the traces #
-
-
 [Traces]
 files=1
 trace_type=f
 transpose=true
 index=0
 nsamples=396
-trace=tracefile 5000 396
+trace=tracefile 50 396
 
 [Guesses]
 files=1
 guess_type=u
 transpose=true
-guess=plaintext 5000 16
+guess=plaintext 50 16
 
 [Ciphertexts]
-ciphertext_type=u
-ciphertext=ciphertext 5000 16
+#ciphertext_type=u
+#ciphertext=ciphertext 50 16
+
+#[Ciphertexts]
+#ciphertext_type=u
+#ciphertext=ciphertext 5000 16
 
 # General configuration options. #
 

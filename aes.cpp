@@ -73,7 +73,9 @@ static uint16_t leakage_first_round(uint8_t * pt, uint8_t * ct, uint8_t key, uin
     return sbox[ pt[bnum] ^ key ];
 }
 
+#define LEAKAGE_FUNC(a,b,c,d,e) leakage_first_round(a,b,c,d,e)
 
+static int warned = 0;
 
 /* Given the messages (m), use the bytenum-th byte to construct
  * the guesses for round R with the specified sbox.
@@ -97,18 +99,23 @@ int construct_guess_AES (TypeGuess ***guess, Matrix *m, Matrix * ct, uint32_t n_
     nrows += m[i].n_rows;
   }
 
-  if (ct[0].n_columns <= bytenum)
+  if (ct == NULL || ct[0].n_columns <= bytenum)
   {
-      fprintf (stderr, "[ERROR]: construct_guess_AES: ct ncolumns (%d) <= bytenum (%d).\n", ct[i].n_columns, bytenum);
+      if (!warned)
+      {
+          fprintf (stderr, "[WARNING]: construct_guess_AES: No ciphertexts provided.\n", ct[0].n_columns, bytenum);
+          warned = 1;
+      }
+  }
+  else
+  {
+      if (import_matrices(&memct, ct, 1, 0) < 0) {
+          fprintf (stderr, "[ERROR]: Importing matrix.\n");
+          return -1;
+      }
   }
 
   if (import_matrices(&mem, m, n_m, 0) < 0) {
-    fprintf (stderr, "[ERROR]: Importing matrix.\n");
-    return -1;
-  }
-
-
-  if (import_matrices(&memct, ct, 1, 0) < 0) {
     fprintf (stderr, "[ERROR]: Importing matrix.\n");
     return -1;
   }
@@ -133,10 +140,9 @@ int construct_guess_AES (TypeGuess ***guess, Matrix *m, Matrix * ct, uint32_t n_
       //printf("\n");
     for (j=0; j < n_keys; j++) {
         if (bit == -1) { /* No individual bits. */
-          //(*guess)[j][i] = HW ((TypeGuess) sbox[ (uint8_t) mem[i][bytenum] ^ j ]);
-          (*guess)[j][i] = HW((TypeGuess) ((leakage_last_round((uint8_t*)mem[i], (uint8_t*)memct[i], j, sbox, bytenum) >> bit)&1));
+          (*guess)[j][i] = HW((TypeGuess) ((LEAKAGE_FUNC((uint8_t*)mem[i], (uint8_t*)memct[i], j, sbox, bytenum) >> bit)&1));
         } else if (bit >= 0 && bit < 8) {
-          (*guess)[j][i] = (TypeGuess) ((leakage_last_round((uint8_t*)mem[i], (uint8_t*)memct[i], j, sbox, bytenum) >> bit)&1);
+          (*guess)[j][i] = (TypeGuess) ((LEAKAGE_FUNC((uint8_t*)mem[i], (uint8_t*)memct[i], j, sbox, bytenum) >> bit)&1);
         }
     }
   }

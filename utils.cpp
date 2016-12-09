@@ -662,7 +662,9 @@ int load_config(Config & config, const char * conf_file)
       traces = false;
       i_traces = 0;
     }else if (line.find("[Ciphertexts]") != string::npos) {
+
       i_traces = 0;
+
     }else if (line.find("type") != string::npos) {
 
       if (line.find("return_type") != string::npos) {
@@ -703,8 +705,6 @@ int load_config(Config & config, const char * conf_file)
           }
           else
           {
-              if (i_traces >= config.n_file_ciphertext)
-                  continue;
           }
       }
       string tmp = line.substr(line.find("=") + 1);
@@ -720,6 +720,11 @@ int load_config(Config & config, const char * conf_file)
       n_rows = atoi(tmp.substr(0, tmp.find(" ")).c_str());
       tmp = tmp.substr(tmp.find(" ") + 1);
       n_columns = atoi(tmp.c_str());
+
+          if (line.find("ciphertext") != string::npos)
+          {
+            printf("found ciphertext line\n");
+          }
       if (traces) {
         config.traces[i_traces] = Matrix(p, n_rows, n_columns);
         tot_row_traces += n_rows;
@@ -734,6 +739,7 @@ int load_config(Config & config, const char * conf_file)
           }
           else
           {
+              printf("cipher text matrix made");
               // ciphertexts
               config.ciphertexts[i_traces] = Matrix(p, n_rows, n_columns);
               tot_row_ciphertexts += n_rows;
